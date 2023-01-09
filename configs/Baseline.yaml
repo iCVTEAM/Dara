@@ -1,0 +1,39 @@
+experiment:
+  name: Dara                                                                         # The name of experiment.
+  log_dir: results/res10                                                             # Log directory of the experiment.
+  cuda: [0]                                                                          # The list of gpu to use. `[]` for cpu only.
+  seed: 42                                                                           # Fix the random seed. `None` for random.
+#  debug: False                                                                      # If `True`, ignore the error of log folder exist.
+#  resume: results/res10/Dara/Dara_epoch_50.pth                                     # Resume from a checkpoint.
+dataset:
+  name: miniImageNet                                                                 # Here we use miniImageNet  dataset.
+  root_dir: data/mini-ImageNet/images                                                # Path to the folder of images in miniImageNet.
+  meta_dir: metadata/mini-ImageNet                                                   # Path to meta-data file for miniImageNet.
+  batch_size: 128                                                                    # Number of images in a batch.
+  num_workers: 4                                                                     # Number of workers for dataloader.
+  transformer:                                                     
+    image_size: 160                                                                  # The size of input image (160x160).
+    resize_size: 184                                                                 # The size of image to be resized before transforms (184x184).
+model:                                                     
+  name: Dara                                                                         # Here we use ResNet10 as a model. 
+  is_pretraining: True
+  num_classes: 64                                                                    # The number of categories in miniImageNet.
+  resolution: 25                                                                     # The resolution of the feature map
+#  load: results/res10/Dara/best_model.pth                                           # Path to load model.
+train:
+  epoch: 350                                                                         # Total num of epochs.
+  save_frequence: 50                                                                 # The frequency of saving model.
+  val_first: True                                                                    # If `true`, it will validate the model firstly before training.
+  optimizer:                                                     
+    name: SGD                                                                        # Here we use sgd optimizer.
+    lr: 0.05                                                                         # Set learning rate to 0.05.
+    momentum: 0.9                                                                    # Set momentum to 0.9.
+    weight_decay: 0.00005                                                            # Set weight_decay to 5e-4.
+    nesterov: True                                                                   # Here we use nesterov.
+  scheduler:                                                     
+    name: MultiStepLR                                                                # Here we use MultiStepLR scheduler.
+    decay_epoch: [200, 300]                                                          # Set `decay_epoch` to 200 and 300.
+    gamma: 0.1                                                     
+  criterion:                                                     
+    name: CrossEntropyLoss                                                           # Here we use CrossEntropyLoss.
+  

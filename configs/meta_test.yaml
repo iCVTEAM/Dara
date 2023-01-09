@@ -1,0 +1,24 @@
+experiment:
+  name: test_dara
+  cuda: [0]
+dataset:
+  name: ISIC
+  root_dir: data/isic/ISIC2018_Task3_Training_Input/
+  meta_dir: metadata/isic
+  num_workers: 4
+  way: 5                                                  # Number of categories per meta task
+  shot: 5                                                 # Number of samples per category
+  query_shot: 16                                          # Number of samples per category for test
+  trail: 1000
+  transformer:
+    resize_size: 184
+    image_size: 160
+model:
+  name: Dara
+  finetuning: DaraFinetuning                              # Consistent with model name
+  is_pretraining: False
+  num_classes: 5                                          # Number of categories per meta task
+  resolution: 25
+  load: results/base_res10/Dara/best_model.pth
+finetuning:
+  epoch: 50
