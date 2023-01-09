@@ -1,5 +1,5 @@
 #  Dual Adaptive Representation Alignment for Cross-domain Few-shot Learning
-
+![Copyright](https://img.shields.io/badge/Copyright-CVTEAM-red)
 PyTorch implementation of:
 
 Dual Adaptive Representation Alignment for Cross-domain Few-shot Learning
