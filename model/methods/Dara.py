@@ -3,26 +3,48 @@ import torch.nn as nn
 import numpy as np
 
 from model.registry import MODEL
-
+import gol
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,padding=1, bias=False)
 
 
-class AdaFBI(nn.Module):
-
+class Domain_transform(nn.Module):
     def __init__(self, planes):
-        super(AdaFBI, self).__init__()
-        self.IN = nn.InstanceNorm2d(planes, affine=False, momentum=0.95)
-        self.BN = nn.BatchNorm2d(planes, affine=False, momentum=0.95)
-        self.alpha = nn.Parameter(torch.FloatTensor([0.0]), requires_grad=True)
+        super(Domain_transform, self).__init__()
+        self.planes = planes
+        self.avg = torch.nn.AdaptiveAvgPool2d((1,1))
+        self.linear=torch.nn.Linear(planes, 1)
+        self.relu = torch.nn.ReLU()
 
     def forward(self, x):
-        t = torch.sigmoid(self.alpha)
+        x = x.detach().data
+        x = self.avg(x).view(-1, self.planes)
+        x = self.linear(x)
+        x = self.relu(x)
+        domain_offset = x.mean()
+        return domain_offset
+
+
+class AN(nn.Module):
+
+    def __init__(self, planes):
+        super(AN, self).__init__()
+        self.IN = nn.InstanceNorm2d(planes, affine=False)
+        self.BN = nn.BatchNorm2d(planes, affine=False)
+        self.alpha = nn.Parameter(torch.FloatTensor([0.0]), requires_grad=True)
+        self.alpha_t = torch.Tensor([0.0])
+        self.domain_transform = Domain_transform(planes)
+
+    def forward(self, x):
+        if gol.get_value('is_ft') and gol.get_value('use_transform'):
+            self.alpha_t = self.alpha + 0.01 * self.domain_transform(x)
+            t = torch.sigmoid(self.alpha_t).cuda()
+        else:
+            t = torch.sigmoid(self.alpha).cuda()
         out_in = self.IN(x)
         out_bn = self.BN(x)
-        # print(t)
         out = t * out_in + (1 - t) * out_bn
         return out
 
@@ -32,10 +54,10 @@ class BasicBlock(nn.Module):
     def __init__(self, inplanes, planes, stride=1, downsample=None, block_size=1, is_maxpool=True):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes)
-        self.adafbi1 = AdaFBI(planes)
+        self.adafbi1 = AN(planes)
         self.relu = nn.LeakyReLU(0.1)
         self.conv2 = conv3x3(planes, planes)
-        self.adafbi2 = AdaFBI(planes)
+        self.adafbi2 = AN(planes)
         self.stride = stride
         self.downsample = downsample
         self.block_size = block_size
@@ -60,14 +82,13 @@ class BasicBlock(nn.Module):
         return out
 
 
-class ResNetAdaFBI(nn.Module):
+class ResNetAN(nn.Module):
 
     def __init__(self, block, resolution):
-        super(ResNetAdaFBI, self).__init__()
+        super(ResNetAN, self).__init__()
         self.inplanes = 64
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7,
-                               stride=2, padding=3, bias=False)
-        self.adafbi = AdaFBI(64)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
+        self.adafbi = AN(64)
         self.relu = nn.ReLU()
         self.layer1 = self._make_layer(block, 64, stride=2)
         self.layer2 = self._make_layer(block, 128, stride=2)
@@ -96,7 +117,7 @@ class ResNetAdaFBI(nn.Module):
 
     def weight_init(self):
         for m in self.modules():
-            if isinstance(m, AdaFBI):
+            if isinstance(m, AN):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
@@ -117,7 +138,7 @@ class Dara(nn.Module):
         super().__init__()
         num_channel = 512
         resolution = config.resolution
-        self.feature_extractor = ResNetAdaFBI(BasicBlock, resolution=resolution)
+        self.feature_extractor = ResNetAN(BasicBlock, resolution=resolution)
         self.resolution = self.feature_extractor.resolution
         
         # number of channels for the feature map, correspond to d in the paper

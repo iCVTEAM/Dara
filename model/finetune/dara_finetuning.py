@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 from model.registry import FINETUNING
+from utils import utils
 
 @FINETUNING.register
 class DaraFinetuning():
@@ -23,11 +24,7 @@ class DaraFinetuning():
         self.prototypical_feature_reprojection_stage2(support, epoch)
         
     def prototypical_feature_reprojection_stage1(self, support, epoch):
-        optimizer_1st = torch.optim.SGD(self.model.feature_extractor.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4, nesterov=True)
-
         support_feat = self.model.get_feature_map(support).view(self.way, self.shot, self.model.resolution, self.model.d)
-        self.model.cat_mat = nn.Parameter(support_feat.mean(1))
-
         support_view = support.view(self.way, self.shot, *support.shape[-3:])
         for t in range(epoch):
             indexes = torch.randperm(self.shot)
@@ -41,6 +38,7 @@ class DaraFinetuning():
             part_quft = support_view[:, q_idxes].view(self.way * (self.shot - 1), *support.shape[-3:])
             part_spft = support_feat[:, s_idxes].squeeze(1)
             self.model.cat_mat = nn.Parameter(part_spft)
+            optimizer_1st = torch.optim.SGD(self.model.feature_extractor.parameters(), lr=0.01, momentum=0.9, weight_decay=5e-4, nesterov=True)
             if self.shot > 1:
                 self.step(self.shot-1, part_quft, optimizer_1st)
             else:
@@ -73,9 +71,19 @@ class DaraFinetuning():
         target = torch.LongTensor([i // q_shot for i in range(q_shot * self.way)]).cuda()
         
         # forward
+        import gol
+
+        gol.set_value('is_ft', True)
+
         outputs = self.model(query)
         loss = self.criterion(outputs, target)
+
+        gol.set_value('is_ft', False)
 
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+    
+    def set_cm(self, support):
+        support_feat = self.model.get_feature_map(support).view(self.way, self.shot, self.model.resolution, self.model.d)
+        self.model.cat_mat = nn.Parameter(support_feat.mean(1))

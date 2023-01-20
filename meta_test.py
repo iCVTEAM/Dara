@@ -2,6 +2,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+import gol
 import logging
 
 from config import setup_config
@@ -21,6 +22,7 @@ class Tester(object):
         self.config = setup_config()
         self.report_one_line = True
         self.logger = self.get_logger()
+        self.set_gol()
 
         # set device. `config.experiment.cuda` should be a list of gpu device ids, None or [] for cpu only.
         self.device = self.config.experiment.cuda if isinstance(self.config.experiment.cuda, list) else []
@@ -44,6 +46,11 @@ class Tester(object):
         # build meters
         self.performance_meters = self.get_performance_meters()
         self.average_meters = self.get_average_meters()
+
+    def set_gol(self):
+        gol._init()
+        gol.set_value('is_ft', False)
+        gol.set_value('use_transform', self.config.model.use_transform)
 
     def get_logger(self):
         logger = logging.getLogger()
@@ -160,6 +167,7 @@ class Tester(object):
             logits = self.model(query)
             acc = accuracy(logits, target, 1)
             self.average_meters['acc'].update(acc, query.size(0))
+        
 
     def report(self):
         metric_str = '  '.join([f'{metric}: {self.performance_meters[metric].current_value:.2f}'
