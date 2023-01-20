@@ -17,6 +17,7 @@ model:
   name: Dara
   finetuning: DaraFinetuning                              # Consistent with model name
   is_pretraining: False
+  use_transform: False
   num_classes: 5                                          # Number of categories per meta task
   resolution: 25
   load: results/base_res10/Dara/best_model.pth
