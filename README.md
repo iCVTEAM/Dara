@@ -117,7 +117,7 @@ Tong Zhang: [tongzhang@buaa.edu.cn](tongzhang@buaa.edu.cn)
 
 ## Download  Models
 
-[Pre-trained Models](https://drive.google.com/file/d/1rgbaj3Ldc162LrrHVT-1pDAod5Zm_Hco/view?usp=sharing)
+[Pre-trained Models](https://drive.google.com/file/d/1ZNIp77WRkDTRVGMRgb_qHUsFagAvU_V2/view?usp=share_link)
 (or run `bash download_pretrain_model.sh`)
 
 ## Acknowledgment
