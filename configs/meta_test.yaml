@@ -3,7 +3,7 @@ experiment:
   cuda: [0]
 dataset:
   name: ISIC
-  root_dir: data/isic/ISIC2018_Task3_Training_Input/
+  root_dir: data/isic
   meta_dir: metadata/isic
   num_workers: 4
   way: 5                                                  # Number of categories per meta task
