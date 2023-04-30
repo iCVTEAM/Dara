@@ -28,10 +28,10 @@ class BaseDataset(torch.utils.data.Dataset):
 
         try:
             self.images = pd.read_csv(
-                meta_path, sep=' ', names=['label', 'path'])
+                meta_path, sep='$', names=['label', 'path'])
         except:
             self.images = pd.read_csv(
-                meta_path, sep=',', names=['label', 'path'])
+                meta_path, sep=' ', names=['label', 'path'])
 
         self.transform = transform
         self.return_id = return_id
