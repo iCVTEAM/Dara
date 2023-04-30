@@ -20,6 +20,6 @@ model:
   use_transform: False
   num_classes: 5                                          # Number of categories per meta task
   resolution: 25
-  load: results/base_res10/Dara/best_model.pth
+  load: results/base_res10/Dara/best_model.tar
 finetuning:
   epoch: 50

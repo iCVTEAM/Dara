@@ -149,7 +149,7 @@ class Dara(nn.Module):
         # number of categories during pre-training
         self.num_classes = config.num_classes
 
-        # category matrix, correspond to matrix M of section 3.6 in the paper
+        # category matrix
         self.cat_mat = nn.Parameter(torch.randn(self.num_classes, self.resolution, self.d), requires_grad=True)
 
     def get_feature_map(self, inp):
@@ -162,12 +162,10 @@ class Dara(nn.Module):
     def get_recon_dist(self, query, support, beta):
         # query: way*query_shot*resolution, d
         # support: way, shot*resolution , d
-        # Woodbury: whether to use the Woodbury Identity as the implementation or not
-        # correspond to gamma in the paper
         lam = support.size(1) / support.size(2)
         rho = beta.exp()
         st = support.permute(0, 2, 1)  # way, d, shot*resolution
-        # correspond to Equation 8 in the paper
+        # correspond to Equation 3 in the paper
         sst = support.matmul(st)
         sst_plus_ri = sst + torch.eye(sst.size(-1)).to(sst.device).unsqueeze(0).mul(lam)
         sst_plus_ri_np = sst_plus_ri.detach().cpu().numpy()
