@@ -129,3 +129,15 @@ Our project references the codes in the following repos.
 - [cdfsl-benchmark](https://github.com/IBM/cdfsl-benchmark)
 
 - [FRN](https://github.com/Tsingularity/FRN)
+
+## Citations:
+
+Please remember to cite us if u find this useful.
+```
+@inproceedings{dara2023,
+  title={Dual Adaptive Representation Alignment for Cross-domain Few-shot Learning},
+  author={Zhao, Yifan and Zhang, Tong and Li, Jia and Tian, Yonghong},
+  booktitle={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2023},
+}
+```
