@@ -105,6 +105,10 @@ python meta_test.py --config configs/meta_test.yaml
 
 You can modify `test.yaml` to test on other dataset.
 
+### Note
+
+There is a clerical error in the implementation details of the article, T^{pq} and T^{ps} should actually be reversed, as should "Query vs. Support" in the first column of Tab. 7.
+
 ## License
 
 This project is released under the [MIT license](./LICENSE).
