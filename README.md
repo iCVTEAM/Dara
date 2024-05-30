@@ -115,7 +115,7 @@ This project is released under the [MIT license](./LICENSE).
 
 ## Contacts
 
-If you have any questions about our work, please do not hesitate to contact us by emails.
+If you have any questions about our work, please do not hesitate to contact us by email.
 
 Tong Zhang: [tongzhang@buaa.edu.cn](tongzhang@buaa.edu.cn)
 
@@ -135,6 +135,9 @@ Our project references the codes in the following repos.
 - [FRN](https://github.com/Tsingularity/FRN)
 
 ## Citations:
+
+Personal page
+https://zhao1f.github.io/
 
 Please remember to cite us if u find this useful.
 ```
